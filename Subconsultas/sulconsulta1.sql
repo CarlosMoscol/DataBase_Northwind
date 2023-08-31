@@ -21,3 +21,15 @@ FROM OrderDetails
 WHERE (SELECT Price FROM Products WHERE ProductID = OrderDetails.ProductID) > 40
 GROUP BY ProductID
 ORDER BY TOTAL_RECAUDADO
+
+-- Empleados que vendieron mas que el promedio
+SELECT FirstName, LastName, 
+(SELECT sum(od.Quantity) FROM [Orders] o, [OrderDetails] od
+WHERE o.EmployeeID = e.EmployeeID AND od.OrderID = o.OrderID) as unidades_totales
+FROM [Employees] e
+WHERE unidades_totales < (SELECT avg(unidades_totales) FROM (
+	SELECT (SELECT sum(od.Quantity) FROM [Orders] o, [OrderDetails] od
+	WHERE o.EmployeeID = e2.EmployeeID AND od.OrderID = o.OrderID) as unidades_totales 
+	FROM [Employees] e2
+	GROUP BY e2.EmployeeID
+))
